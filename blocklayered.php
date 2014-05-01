@@ -1303,7 +1303,7 @@ class BlockLayered extends Module
 				$values[] = '('.(int)$id_product.',
 					'.(int)$currency['id_currency'].',
 					'.$id_shop.',
-					'.(int)$min_price[$currency['id_currency']].',
+					'.(int)Tools::ps_round($min_price[$currency['id_currency']] * (100 + $max_tax_rate) / 100, 0).',
 					'.(int)Tools::ps_round($max_price[$currency['id_currency']] * (100 + $max_tax_rate) / 100, 0).')';
 			
 			Db::getInstance()->execute('
