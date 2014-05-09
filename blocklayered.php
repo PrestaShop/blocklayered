@@ -880,14 +880,14 @@ class BlockLayered extends Module
 		
 		Db::getInstance()->execute('
 			INSERT INTO `'._DB_PREFIX_.'layered_product_attribute` (`id_attribute`, `id_product`, `id_attribute_group`, `id_shop`)
-			SELECT pac.id_attribute, pa.id_product, ag.id_attribute_group, product_attribute_shop.`id_shop`
-			FROM '._DB_PREFIX_.'product_attribute pa'.
-			Shop::addSqlAssociation('product_attribute', 'pa').'
-			INNER JOIN '._DB_PREFIX_.'product_attribute_combination pac ON pac.id_product_attribute = pa.id_product_attribute 
-			INNER JOIN '._DB_PREFIX_.'attribute a ON (a.id_attribute = pac.id_attribute) 
+			SELECT pac.id_attribute, pa.id_product, ag.id_attribute_group, pas.id_shop
+			FROM '._DB_PREFIX_.'product_attribute pa
+			INNER JOIN '._DB_PREFIX_.'product_attribute_shop pas ON pas.id_product_attribute = pa.id_product_attribute
+			INNER JOIN '._DB_PREFIX_.'product_attribute_combination pac ON pac.id_product_attribute = pa.id_product_attribute
+			INNER JOIN '._DB_PREFIX_.'attribute a ON (a.id_attribute = pac.id_attribute)
 			INNER JOIN '._DB_PREFIX_.'attribute_group ag ON ag.id_attribute_group = a.id_attribute_group
 			'.(is_null($id_product) ? '' : 'AND pa.id_product = '.(int)$id_product).'
-			GROUP BY a.id_attribute, pa.id_product , product_attribute_shop.`id_shop`'
+			GROUP BY a.id_attribute, pa.id_product, pas.id_shop'
 		);
 		
 		return 1;
