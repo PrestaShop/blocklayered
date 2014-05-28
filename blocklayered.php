@@ -1944,13 +1944,6 @@ class BlockLayered extends Module
 		
 		$query_filters_from .= Shop::addSqlAssociation('product', 'p');
 		
-		$all_products_out = self::query('
-		SELECT p.`id_product` id_product
-		FROM `'._DB_PREFIX_.'product` p
-		'.$price_filter_query_out.'
-		'.$query_filters_from.'
-		WHERE 1 '.$query_filters_where.' GROUP BY id_product');
-		
 		$all_products_in = self::query('
 		SELECT p.`id_product` id_product
 		FROM `'._DB_PREFIX_.'product` p
@@ -1963,14 +1956,24 @@ class BlockLayered extends Module
 		while ($product = DB::getInstance()->nextRow($all_products_in))
 			$product_id_list[] = (int)$product['id_product'];
 
-		while ($product = DB::getInstance()->nextRow($all_products_out))
-			if (isset($price_filter) && $price_filter)
-			{
-				$price = (int)Product::getPriceStatic($product['id_product'], Configuration::get('PS_LAYERED_FILTER_PRICE_USETAX')); // Cast to int because we don't care about cents
-				if ($price < $price_filter['min'] || $price > $price_filter['max'])
-					continue;
-				$product_id_list[] = (int)$product['id_product'];
-			}
+    if (isset($price_filter) && $price_filter)
+    {
+        $all_products_out = self::query('
+    		SELECT p.`id_product` id_product
+    		FROM `'._DB_PREFIX_.'product` p
+    		'.$price_filter_query_out.'
+    		'.$query_filters_from.'
+    		WHERE 1 '.$query_filters_where.' GROUP BY id_product');
+        
+    		while ($product = DB::getInstance()->nextRow($all_products_out))
+    		{			
+    				$price = (int)Product::getPriceStatic($product['id_product'], Configuration::get('PS_LAYERED_FILTER_PRICE_USETAX')); // Cast to int because we don't care about cents
+    				if ($price < $price_filter['min'] || $price > $price_filter['max'])
+    					continue;
+    				$product_id_list[] = (int)$product['id_product'];
+		    }
+    }
+    
 		$this->nbr_products = count($product_id_list);
 		
 		if ($this->nbr_products == 0)
