@@ -1304,8 +1304,8 @@ class BlockLayered extends Module
 				$values[] = '('.(int)$id_product.',
 					'.(int)$currency['id_currency'].',
 					'.$id_shop.',
-					'.(int)$min_price[$currency['id_currency']].',
-					'.(int)Tools::ps_round($max_price[$currency['id_currency']] * (100 + $max_tax_rate) / 100, 0).')';
+					'.(int)floor($min_price[$currency['id_currency']] * ((100 + $max_tax_rate) / 100)).',
+					'.(int)ceil($max_price[$currency['id_currency']] * ((100 + $max_tax_rate) / 100)).')';
 			
 			Db::getInstance()->execute('
 				INSERT INTO `'._DB_PREFIX_.'layered_price_index` (id_product, id_currency, id_shop, price_min, price_max)
