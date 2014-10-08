@@ -89,7 +89,7 @@
 								<ul class="dropdown-menu">
 									<li>
 										<a href="{$current_url}&amp;deleteFilterTemplate=1&amp;id_layered_filter={(int)$template['id_layered_filter']}"
-						onclick="return confirm('{l s='Do you really want to delete this filter template' mod='blocklayered'}');">
+						onclick="return confirm('{l s='Do you really want to delete this filter template?' mod='blocklayered'}');">
 											<i class="icon-trash"></i> {l s='Delete' mod='blocklayered'}
 										</a>
 									</li>
@@ -180,6 +180,22 @@
 					</label>
 					<input type="radio" name="ps_layered_filter_price_usetax" id="ps_layered_filter_price_usetax_off" value="0"{if !$price_use_tax} checked="checked"{/if}>
 					<label for="ps_layered_filter_price_usetax_off" class="radioCheck">
+						<i class="color_danger"></i> {l s='No' mod='blocklayered'}
+					</label>
+					<a class="slide-button btn"></a>
+				</span>
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-lg-3 control-label">{l s='Use rounding to filter price' mod='blocklayered'}</label>
+			<div class="col-lg-9">
+				<span class="switch prestashop-switch fixed-width-lg">
+					<input type="radio" name="ps_layered_filter_price_rounding" id="ps_layered_filter_price_rounding_on" value="1"{if $price_use_rounding} checked="checked"{/if}/>
+					<label for="ps_layered_filter_price_rounding_on" class="radioCheck">
+						<i class="color_success"></i> {l s='Yes' mod='blocklayered'}
+					</label>
+					<input type="radio" name="ps_layered_filter_price_rounding" id="ps_layered_filter_price_rounding_off" value="0"{if !$price_use_rounding} checked="checked"{/if}/>
+					<label for="ps_layered_filter_price_rounding_off" class="radioCheck">
 						<i class="color_danger"></i> {l s='No' mod='blocklayered'}
 					</label>
 					<a class="slide-button btn"></a>
