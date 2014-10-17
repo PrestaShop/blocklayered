@@ -28,14 +28,12 @@ var ajaxLoaderOn = 0;
 var sliderList = new Array();
 var slidersInit = false;
 
-$(document).ready(function()
-{
+$(document).ready(function(){
 	cancelFilter();
 	openCloseFilter();
 	
 	// Click on color
-	$('#layered_form input[type=button], #layered_form label.layered_color').live('click', function()
-	{
+	$('#layered_form input[type=button], #layered_form label.layered_color').live('click', function(){
 		if (!$('input[name='+$(this).attr('name')+'][type=hidden]').length)
 			$('<input />').attr('type', 'hidden').attr('name', $(this).attr('name')).val($(this).data('rel')).appendTo('#layered_form');
 		else
@@ -44,14 +42,17 @@ $(document).ready(function()
 	});
 	
 	// Click on checkbox
-	$('#layered_form input[type=checkbox], #layered_form input[type=radio], #layered_form select').live('change', function()
-	{
+	$('#layered_form input[type=checkbox], #layered_form input[type=radio]').live('change', function(){
+		reloadContent();
+	});
+	
+	// select an option from dropdown
+	$('body').on('change', '#layered_form .select', function(e) {
 		reloadContent();
 	});
 	
 	// Changing content of an input text
-	$('#layered_form input.layered_input_range').live('keyup', function()
-	{
+	$('#layered_form input.layered_input_range').live('keyup', function(){
 		if ($(this).attr('timeout_id'))
 			window.clearTimeout($(this).attr('timeout_id'));
 
