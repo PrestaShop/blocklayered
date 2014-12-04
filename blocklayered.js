@@ -599,7 +599,9 @@ function reloadContent(params_plus)
 				}
 				else if ($('#layered_'+sliderType+'_range_min').length)
 				{
-					current_friendly_url += '/'+blocklayeredSliderName[sliderType]+'-'+$('#layered_'+sliderType+'_range_min').val()+'-'+$('#layered_'+sliderType+'_range_max').val();
+					if($('#layered_' + sliderType + '_range_min').attr('limitValue') != $('#layered_'+sliderType+'_range_min').val()
+                                        || $('#layered_' + sliderType + '_range_max').attr('limitValue') != $('#layered_'+sliderType+'_range_max').val())
+						current_friendly_url += '/'+blocklayeredSliderName[sliderType]+'-'+$('#layered_'+sliderType+'_range_min').val()+'-'+$('#layered_'+sliderType+'_range_max').val();
 				}
 			});
 
