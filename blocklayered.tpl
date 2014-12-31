@@ -32,6 +32,7 @@ param_product_url = '#{$param_product_url}';
 {else}
 param_product_url = '';
 {/if}
+{addJsDef blocklayeredSliderName=$blocklayeredSliderName}
 </script>
 <div id="layered_block_left" class="block">
 	<h4 class="title_block">{l s='Catalog' mod='blocklayered'}</h4>
