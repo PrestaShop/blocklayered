@@ -1869,6 +1869,7 @@ class BlockLayered extends Module
 						LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
 						ON (pa.`id_product_attribute` = pac.`id_product_attribute`)'.
 						Shop::addSqlAssociation('product_attribute', 'pa').'
+						INNER JOIN `ps_stock_available` sa ON (sa.id_product_attribute = pa.id_product_attribute AND sa.id_shop = ' . Context::getContext()->shop->id . ' AND sa.quantity > 0)
 						WHERE '.implode(' OR ', $sub_query).') ';
 					}
 				break;
