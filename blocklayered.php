@@ -2004,7 +2004,7 @@ class BlockLayered extends Module
 			'.Shop::addSqlAssociation('product_attribute', 'pa', false, 'product_attribute_shop.`default_on` = 1').'
 			'.Product::sqlStock('p', 'product_attribute_shop', false, Context::getContext()->shop).'
 			LEFT JOIN '._DB_PREFIX_.'product_lang pl ON (pl.id_product = p.id_product'.Shop::addSqlRestrictionOnLang('pl').' AND pl.id_lang = '.(int)$cookie->id_lang.')
-			LEFT JOIN `'._DB_PREFIX_.'image` i  ON (i.`id_product` = p.`id_product`)'.
+			LEFT JOIN `'._DB_PREFIX_.'image` i  ON (i.`id_product` = p.`id_product` AND i.`cover` = 1)'.
 			Shop::addSqlAssociation('image', 'i', false, 'image_shop.cover=1').'
 			LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$cookie->id_lang.')
 			LEFT JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
