@@ -3145,7 +3145,7 @@ class BlockLayered extends Module
 
         $varsUTF8 = $this->utf8ize($vars);
 
-        return json_encode($varsUTF8);
+        return Tools::jsonEncode($varsUTF8);
     }
 
 
