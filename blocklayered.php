@@ -3141,11 +3141,32 @@ class BlockLayered extends Module
 		if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true)
 			$vars = array_merge($vars, array('pagination_bottom' => $smarty->assign('paginationId', 'bottom')
 				->fetch(_PS_THEME_DIR_.'pagination.tpl')));
-		/* We are sending an array in jSon to the .js controller, it will update both the filters and the products zones */
-		return Tools::jsonEncode($vars);
-	}
+        /* We are sending an array in jSon to the .js controller, it will update both the filters and the products zones */
 
-	public function getProducts($selected_filters, &$products, &$nb_products, &$p, &$n, &$pages_nb, &$start, &$stop, &$range)
+        $varsUTF8 = $this->utf8ize($vars);
+
+        return json_encode($varsUTF8);
+    }
+
+
+    /**
+     * Convert array or string to utf-8
+     *
+     * @param $d
+     * @return array|string
+     */
+    protected function utf8ize($d) {
+        if (is_array($d)) {
+            foreach ($d as $k => $v) {
+                $d[$k] = $this->utf8ize($v);
+            }
+        } else if (is_string ($d)) {
+            return utf8_encode($d);
+        }
+        return $d;
+    }
+
+    public function getProducts($selected_filters, &$products, &$nb_products, &$p, &$n, &$pages_nb, &$start, &$stop, &$range)
 	{
 		global $cookie;
 
