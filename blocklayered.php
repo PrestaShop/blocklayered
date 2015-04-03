@@ -3124,8 +3124,8 @@ class BlockLayered extends Module
 			$product_list = $smarty->fetch(_PS_THEME_DIR_.'product-list.tpl');
 
 		$vars = array(
-			'filtersBlock' => utf8_encode($this->generateFiltersBlock($selected_filters)),
-			'productList' => utf8_encode($product_list),
+			'filtersBlock' => $this->generateFiltersBlock($selected_filters),
+			'productList' => $product_list,
 			'pagination' => $smarty->fetch(_PS_THEME_DIR_.'pagination.tpl'),
 			'categoryCount' => $category_count,
 			'meta_title' => $meta_title.' - '.Configuration::get('PS_SHOP_NAME'),
