@@ -64,11 +64,7 @@ class BlockLayered extends Module
 		{
 			if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true)
 			{
-                // Get Shop ID from selected Context
-                $id_shop_context = (int)Context::getContext()->shop->getContextShopID();
-                $shop = new Shop($id_shop_context);
-
-                // Hook the module either on the left or right column
+				// Hook the module either on the left or right column
 				$theme = new Theme(Context::getContext()->shop->id_theme);
 				if ((!$theme->default_left_column || !$this->registerHook('leftColumn'))
 					&& (!$theme->default_right_column || !$this->registerHook('rightColumn')))
