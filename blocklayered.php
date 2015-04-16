@@ -29,9 +29,9 @@ if (!defined('_PS_VERSION_'))
 
 class BlockLayered extends Module
 {
-	private $products;
-	private $nbr_products;
-	private $page = 1;
+	protected $products;
+	protected $nbr_products;
+	protected $page = 1;
 
 	public function __construct()
 	{
@@ -135,7 +135,7 @@ class BlockLayered extends Module
 		return parent::uninstall();
 	}
 
-	private static function installPriceIndexTable()
+	protected static function installPriceIndexTable()
 	{
 		Db::getInstance()->execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'layered_price_index`');
 
@@ -152,7 +152,7 @@ class BlockLayered extends Module
 		)  ENGINE='._MYSQL_ENGINE_.' DEFAULT CHARSET=utf8;');
 	}
 
-	private function installFriendlyUrlTable()
+	protected function installFriendlyUrlTable()
 	{
 		Db::getInstance()->execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'layered_friendly_url`');
 		Db::getInstance()->execute('
@@ -168,7 +168,7 @@ class BlockLayered extends Module
 		Db::getInstance()->execute('CREATE INDEX `url_key` ON `'._DB_PREFIX_.'layered_friendly_url`(url_key(5))');
 	}
 
-	private function installIndexableAttributeTable()
+	protected function installIndexableAttributeTable()
 	{
 		// Attributes Groups
 		Db::getInstance()->execute('DROP TABLE IF EXISTS `'._DB_PREFIX_.'layered_indexable_attribute_group`');
@@ -1086,7 +1086,7 @@ class BlockLayered extends Module
 		return self::indexPrices($cursor, false, $ajax);
 	}
 
-	private static function indexPrices($cursor = null, $full = false, $ajax = false, $smart = false)
+	protected static function indexPrices($cursor = null, $full = false, $ajax = false, $smart = false)
 	{
 		if ($full)
 			$nb_products = (int)Db::getInstance()->getValue('
@@ -1153,7 +1153,7 @@ class BlockLayered extends Module
 	/*
 	 * $cursor $cursor in order to restart indexing from the last state
 	 */
-	private static function indexPricesUnbreakable($cursor, $full = false, $smart = false)
+	protected static function indexPricesUnbreakable($cursor, $full = false, $smart = false)
 	{
 		static $length = 100; // Nb of products to index
 
@@ -1684,7 +1684,7 @@ class BlockLayered extends Module
 		return $return;
 	}
 
-	private function getSelectedFilters()
+	protected function getSelectedFilters()
 	{
 		$home_category = Configuration::get('PS_HOME_CATEGORY');
 		$id_parent = (int)Tools::getValue('id_category', Tools::getValue('id_category_layered', $home_category));
@@ -2043,7 +2043,7 @@ class BlockLayered extends Module
 		return $this->products;
 	}
 
-	private static function query($sql_query)
+	protected static function query($sql_query)
 	{
 		return Db::getInstance(_PS_USE_SQL_SLAVE_)->query($sql_query);
 	}
@@ -2895,7 +2895,7 @@ class BlockLayered extends Module
 			return false;
 	}
 
-	private static function getPriceFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getPriceFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		$id_currency = (int)Context::getContext()->currency->id;
 
@@ -2909,7 +2909,7 @@ class BlockLayered extends Module
 		return array();
 	}
 
-	private static function filterProductsByPrice($filter_value, $product_collection)
+	protected static function filterProductsByPrice($filter_value, $product_collection)
 	{
 		static $ps_layered_filter_price_usetax = null;
 		static $ps_layered_filter_price_rounding = null;
@@ -2943,7 +2943,7 @@ class BlockLayered extends Module
 		return $product_collection;
 	}
 
-	private static function getWeightFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getWeightFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (isset($filter_value) && $filter_value) {
 			if ($filter_value[0] != 0 || $filter_value[1] != 0) {
@@ -2954,7 +2954,7 @@ class BlockLayered extends Module
 		return array();
 	}
 
-	private static function getId_featureFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getId_featureFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (empty($filter_value))
 			return array();
@@ -2965,7 +2965,7 @@ class BlockLayered extends Module
 
 		return array('where' => $query_filters);
 	}
-	private static function getId_attribute_groupFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getId_attribute_groupFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (empty($filter_value))
 			return array();
@@ -2982,7 +2982,7 @@ class BlockLayered extends Module
 		return array('where' => $query_filters);
 	}
 
-	private static function getCategoryFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getCategoryFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (empty($filter_value))
 			return array();
@@ -2995,7 +2995,7 @@ class BlockLayered extends Module
 		return array('where' => $query_filters_where, 'join' => $query_filters_join);
 	}
 
-	private static function getQuantityFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getQuantityFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (count($filter_value) == 2 || empty($filter_value))
 			return array();
@@ -3008,7 +3008,7 @@ class BlockLayered extends Module
 		return array('where' => $query_filters, 'join' => $query_filters_join);
 	}
 
-	private static function getManufacturerFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getManufacturerFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (empty($filter_value))
 			$query_filters = '';
@@ -3023,7 +3023,7 @@ class BlockLayered extends Module
 				return array('where' => $query_filters, 'join' => 'LEFT JOIN `'._DB_PREFIX_.'manufacturer` m ON (m.id_manufacturer = p.id_manufacturer) ');
 	}
 
-	private static function getConditionFilterSubQuery($filter_value, $ignore_join = false)
+	protected static function getConditionFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (count($filter_value) == 3 || empty($filter_value))
 			return array();
