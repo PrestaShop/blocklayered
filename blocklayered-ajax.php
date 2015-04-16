@@ -29,5 +29,5 @@ include(dirname(__FILE__).'/../../init.php');
 include(dirname(__FILE__).'/blocklayered.php');
 
 Context::getContext()->controller->php_self = 'category';
-$blockLayered = new BlockLayered();
+$blockLayered = Module::getInstanceByName('blocklayered');
 echo $blockLayered->ajaxCall();
