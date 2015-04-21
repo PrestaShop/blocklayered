@@ -2080,29 +2080,47 @@ class BlockLayered extends Module
 
 		/* Create the table which contains all the id_product in a cat or a tree */
 		$sql_query = array('join' => '', 'where' => '');
+		$selected_filters_cleaned = array();
+		$last_filter_tmp = null;
+		$method_name = '';
 		foreach ($filters as $filter_tmp)
 		{
-			$method_name = 'get'.ucfirst($filter_tmp['type']).'FilterSubQuery';
-			if (method_exists('BlockLayered', $method_name))
+			if ($last_filter_tmp != null && $last_filter_tmp != $filter_tmp['type'])
 			{
-				if (!is_null($filter_tmp['id_value'])) {
-					$selected_filters_cleaned = $this->cleanFilterByIdValue(@$selected_filters[$filter_tmp['type']], $filter_tmp['id_value']);
-				} else {
-					$selected_filters_cleaned = @$selected_filters[$filter_tmp['type']];
-				}
-				if (!empty($selected_filters_cleaned)) {
+				if (!empty($selected_filters_cleaned))
 					$sub_query_filter = self::$method_name($selected_filters_cleaned);
-				} else {
+				else
 					$sub_query_filter = array();
-				}
-				foreach ($sub_query_filter as $key => $value) {
+
+				foreach ($sub_query_filter as $key => $value)
 					$sql_query[$key] .= $value;
-				}
+
+				$selected_filters_cleaned = array();
+			}
+
+			$method_name = 'get'.ucfirst($filter_tmp['type']).'FilterSubQuery';
+			if (method_exists('BlockLayered', $method_name)) 
+			{
+				if (!is_null($filter_tmp['id_value']))
+					$selected_filters_cleaned = array_merge($selected_filters_cleaned, 
+															$this->cleanFilterByIdValue(@$selected_filters[$filter_tmp['type']], $filter_tmp['id_value']));
+				else
+					$selected_filters_cleaned = array_merge($selected_filters_cleaned, @$selected_filters[$filter_tmp['type']]);
+				$last_filter_tmp = $filter_tmp['type'];
 			}
 		}
+		$method_name = 'get'.ucfirst($last_filter_tmp).'FilterSubQuery';
+		if (!empty($selected_filters_cleaned))
+			$sub_query_filter = self::$method_name($selected_filters_cleaned);
+		else
+			$sub_query_filter = array();
+		
+		foreach ($sub_query_filter as $key => $value)
+			$sql_query[$key] .= $value;
+
 		Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('DROP TEMPORARY TABLE IF EXISTS '._DB_PREFIX_.'cat_restriction');
 		Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_restriction ENGINE=MEMORY
-													SELECT DISTINCT cp.id_product, p.id_manufacturer FROM '._DB_PREFIX_.'category_product cp
+													SELECT DISTINCT cp.id_product, p.id_manufacturer, p.weight FROM '._DB_PREFIX_.'category_product cp
 													INNER JOIN '._DB_PREFIX_.'category c ON (c.id_category = cp.id_category AND
 													'.(Configuration::get('PS_LAYERED_FULL_TREE') ? 'c.nleft >= '.(int)$parent->nleft.'
 													AND c.nright <= '.(int)$parent->nright : 'c.id_category = '.(int)$id_parent).'
@@ -2113,7 +2131,8 @@ class BlockLayered extends Module
 													'.$sql_query['join'].'
 													WHERE product_shop.`active` = 1 AND product_shop.`visibility` IN ("both", "catalog") '.$sql_query['where']);
 		Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('ALTER TABLE '._DB_PREFIX_.'cat_restriction ADD PRIMARY KEY (id_product),
-													ADD KEY `id_manufacturer` (`id_manufacturer`,`id_product`) USING BTREE');
+													ADD KEY `id_manufacturer` (`id_manufacturer`,`id_product`) USING BTREE,
+													ADD KEY `weight` (`weight`,`id_product`) USING BTREE');
 
 		// Remove all empty selected filters
 		foreach ($selected_filters as $key => $value)
@@ -2147,7 +2166,7 @@ class BlockLayered extends Module
 				case 'weight':
 					$sql_query['select'] = 'SELECT p.`id_product`, p.`weight` ';
 					$sql_query['from'] = '
-					FROM '._DB_PREFIX_.'cat_restriction JOIN '._DB_PREFIX_.'product p USING (id_product)';
+					FROM '._DB_PREFIX_.'cat_restriction p';
 					$sql_query['where'] = 'WHERE 1';
 					break;
 				case 'condition':
