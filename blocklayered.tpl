@@ -176,7 +176,7 @@ param_product_url = '';
 											$('#layered_{/literal}{$filter.type}{literal}_range').html(from+' - '+to);
 										},
 										stop: function () {
-											reloadContent();
+											reloadContent(true);
 										}
 									}, '{/literal}{$filter.unit}{literal}', {/literal}{$filter.format}{literal});
 								{/literal}
