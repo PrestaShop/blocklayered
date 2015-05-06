@@ -101,7 +101,7 @@ $(document).ready(function()
 			|| disable == false)
 			{
 				$(this).parent().parent().find('input').click();
-				reloadContent();
+				reloadContent(true);
 			}
 		}
 	});
