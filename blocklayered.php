@@ -2683,8 +2683,8 @@ class BlockLayered extends Module
 			$param_group_selected = '';
 
 			if (in_array(strtolower($type_filter['type']), array('price', 'weight'))
-				&& (float)$type_filter['values'][0] > (float)$type_filter['min']
-				&& (float)$type_filter['values'][1] > (float)$type_filter['max'])
+				&& (float)$type_filter['values'][0] >= (float)$type_filter['min']
+				&& (float)$type_filter['values'][1] <= (float)$type_filter['max'])
 			{
 				$param_group_selected .= $this->getAnchor().str_replace($this->getAnchor(), '_', $type_filter['values'][0])
 					.$this->getAnchor().str_replace($this->getAnchor(), '_', $type_filter['values'][1]);
