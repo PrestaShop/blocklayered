@@ -29,5 +29,12 @@ include(dirname(__FILE__).'/../../init.php');
 include(dirname(__FILE__).'/blocklayered.php');
 
 Context::getContext()->controller->php_self = 'category';
-$blockLayered = new BlockLayered();
+$override_path = _PS_OVERRIDE_DIR_.'modules/blocklayered/blocklayered.php';
+if (file_exists($override_path))
+{
+	include($override_path);
+	$blockLayered = new BlockLayeredOverride();
+}
+else 
+	$blockLayered = new BlockLayered();
 echo $blockLayered->ajaxCall();
