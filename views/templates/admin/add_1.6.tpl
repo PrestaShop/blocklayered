@@ -191,6 +191,43 @@
 							<li class="filter_list_item" draggable="true">
 								<div class="col-lg-2">
 									<label class="switch-light prestashop-switch fixed-width-lg">
+										<input name="layered_selection_supplier" id="layered_selection_supplier" type="checkbox" />
+										<span>
+											<span>{l s='Yes' mod='blocklayered'}</span>
+											<span>{l s='No' mod='blocklayered'}</span>
+										</span>
+										<a class="slide-button btn"></a>
+									</label>
+								</div>
+								<div class="col-lg-4">
+									<span class="module_name">{l s='Product supplier filter' mod='blocklayered'}</span>
+								</div>
+								<div class="col-lg-3 pull-right">
+									<label class="control-label col-lg-6">{l s='Filter result limit:' mod='blocklayered'}</label>
+									<div class="col-lg-6">
+										<select name="layered_selection_supplier_filter_show_limit">
+											<option value="0">{l s='No limit' mod='blocklayered'}</option>
+											<option value="4">4</option>
+											<option value="5">5</option>
+											<option value="10">10</option>
+											<option value="20">20</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-lg-3 pull-right">
+									<label class="control-label col-lg-6">{l s='Filter style:' mod='blocklayered'}</label>
+									<div class="col-lg-6">
+										<select name="layered_selection_supplier_filter_type">
+											<option value="0">{l s='Checkbox' mod='blocklayered'}</option>
+											<option value="1">{l s='Radio button' mod='blocklayered'}</option>
+											<option value="2">{l s='Drop-down list' mod='blocklayered'}</option>
+										</select>
+									</div>
+								</div>
+							</li>
+							<li class="filter_list_item" draggable="true">
+								<div class="col-lg-2">
+									<label class="switch-light prestashop-switch fixed-width-lg">
 										<input name="layered_selection_weight_slider" id="layered_selection_weight_slider" type="checkbox" />
 										<span>
 											<span>{l s='Yes' mod='blocklayered'}</span>
