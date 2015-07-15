@@ -152,6 +152,34 @@
 										<table>
 											<tbody>
 												<tr>
+													<td><input name="layered_selection_supplier" id="layered_selection_supplier" type="checkbox" /></td>
+													<td class="filter-title">{l s='Product supplier filter' mod='blocklayered'}</td>
+													<td>{l s='Filter result limit:' mod='blocklayered'}</td>
+													<td>
+														<select name="layered_selection_supplier_filter_show_limit">
+															<option value="0">{l s='No limit' mod='blocklayered'}</option>
+															<option value="4">4</option>
+															<option value="5">5</option>
+															<option value="10">10</option>
+															<option value="20">20</option>
+														</select>
+													</td>
+													<td>{l s='Filter style:' mod='blocklayered'}</td>
+													<td>
+														<select name="layered_selection_supplier_filter_type">
+															<option value="0">{l s='Checkbox' mod='blocklayered'}</option>
+															<option value="1">{l s='Radio button' mod='blocklayered'}</option>
+															<option value="2">{l s='Drop-down list' mod='blocklayered'}</option>
+														</select>
+													</td>
+												</tr>
+											</tbody>
+										</table>
+									</li>
+									<li class="filter_list_item" draggable="true">
+										<table>
+											<tbody>
+												<tr>
 													<td><input name="layered_selection_weight_slider" id="layered_selection_weight_slider" type="checkbox" /></td>
 													<td class="filter-title">{l s='Product weight filter (slider)' mod='blocklayered'}</td>
 													<td>{l s='Filter result limit:' mod='blocklayered'}</td>
