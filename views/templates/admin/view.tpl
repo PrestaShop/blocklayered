@@ -234,6 +234,21 @@
 				</tr>
 				<tr>
 					<td class="label">
+						{l s='Allow indexing robots (Google, Yahoo!, Bing, etc.) to use the Supplier filter' mod='blocklayered'}
+					</td>
+					<td>
+						<input type="radio" name="ps_layered_filter_index_supplier" id="ps_layered_filter_index_supplier_on" value="1"{if $index_mnf} checked="checked"{/if}>
+						<label for="ps_layered_filter_index_supplier_on" class="radioCheck">
+							<i class="icon-check-sign color_success"></i> {l s='Yes' mod='blocklayered'}
+						</label>
+						<input type="radio" name="ps_layered_filter_index_supplier" id="ps_layered_filter_index_supplier_off" value="0"{if !$index_mnf} checked="checked"{/if}>
+						<label for="ps_layered_filter_index_supplier_off" class="radioCheck">
+							<i class="icon-ban-circle color_danger"></i> {l s='No' mod='blocklayered'}
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
 						{l s='Allow indexing robots (Google, Yahoo!, Bing, etc.) to use the Category filter' mod='blocklayered'}
 					</td>
 					<td>
