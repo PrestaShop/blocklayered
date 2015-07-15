@@ -71,6 +71,7 @@ class BlockLayered extends Module
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_QTY', 0);
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_CDT', 0);
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_MNF', 0);
+			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_SPL', 0);
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_CAT', 0);
 			Configuration::updateValue('PS_ATTRIBUTE_ANCHOR_SEPARATOR', '-');
 			Configuration::updateValue('PS_LAYERED_FILTER_PRICE_ROUNDING', 1);
@@ -117,6 +118,7 @@ class BlockLayered extends Module
 		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_QTY');
 		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_CDT');
 		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_MNF');
+		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_SPL');
 		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_CAT');
 		Configuration::deleteByName('PS_LAYERED_FILTER_PRICE_ROUNDING');
 
@@ -749,6 +751,8 @@ class BlockLayered extends Module
 			$blacklist[] = 'quantity';
 		if (!Configuration::get('PS_LAYERED_FILTER_INDEX_MNF'))
 			$blacklist[] = 'manufacturer';
+		if (!Configuration::get('PS_LAYERED_FILTER_INDEX_SPL'))
+			$blacklist[] = 'supplier';
 		if (!Configuration::get('PS_LAYERED_FILTER_INDEX_CAT'))
 			$blacklist[] = 'category';
 
@@ -1004,6 +1008,25 @@ class BlockLayered extends Module
 							$attribute_values_by_lang[$manufacturer['id_lang']]['manufacturer'] = array();
 						$attribute_values_by_lang[$manufacturer['id_lang']]['manufacturer'][] = array('name' => $this->translateWord('Manufacturer', $manufacturer['id_lang']),
 						'id_name' => null, 'value' => $manufacturer['name'], 'id_value' => $manufacturer['id_manufacturer'],
+						'category_name' => $filter['link_rewrite'], 'type' => $filter['type']);
+					}
+					break;
+
+				case 'supplier':
+					$suppliers = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
+						SELECT s.name as name,l.id_lang as id_lang,  id_supplier
+						FROM '._DB_PREFIX_.'supplier s , '._DB_PREFIX_.'lang l
+						WHERE l.id_lang = '.(int)$filter['id_lang']
+					);
+
+					foreach ($suppliers as $supplier)
+					{
+						if (!isset($attribute_values_by_lang[$supplier['id_lang']]))
+							$attribute_values_by_lang[$supplier['id_lang']] = array();
+						if (!isset($attribute_values_by_lang[$supplier['id_lang']]['supplier']))
+							$attribute_values_by_lang[$supplier['id_lang']]['supplier'] = array();
+						$attribute_values_by_lang[$supplier['id_lang']]['supplier'][] = array('name' => $this->translateWord('Supplier', $supplier['id_lang']),
+						'id_name' => null, 'value' => $supplier['name'], 'id_value' => $supplier['id_supplier'],
 						'category_name' => $filter['link_rewrite'], 'type' => $filter['type']);
 					}
 					break;
@@ -1474,6 +1497,7 @@ class BlockLayered extends Module
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_QTY', (int)Tools::getValue('ps_layered_filter_index_availability'));
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_CDT', (int)Tools::getValue('ps_layered_filter_index_condition'));
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_MNF', (int)Tools::getValue('ps_layered_filter_index_manufacturer'));
+			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_SPL', (int)Tools::getValue('ps_layered_filter_index_supplier'));
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_CAT', (int)Tools::getValue('ps_layered_filter_index_category'));
 			Configuration::updateValue('PS_LAYERED_FILTER_PRICE_ROUNDING', (int)Tools::getValue('ps_layered_filter_price_rounding'));
 
@@ -1653,6 +1677,7 @@ class BlockLayered extends Module
 				'index_cdt' => Configuration::get('PS_LAYERED_FILTER_INDEX_CDT'),
 				'index_qty' => Configuration::get('PS_LAYERED_FILTER_INDEX_QTY'),
 				'index_mnf' => Configuration::get('PS_LAYERED_FILTER_INDEX_MNF'),
+				'index_spl' => Configuration::get('PS_LAYERED_FILTER_INDEX_SPL'),
 				'index_cat' => Configuration::get('PS_LAYERED_FILTER_INDEX_CAT'),
 				'limit_warning' => $this->displayLimitPostWarning(21+count($attribute_groups)*3+count($features)*3),
 				'price_use_rounding' => (bool)Configuration::get('PS_LAYERED_FILTER_PRICE_ROUNDING')
@@ -1739,7 +1764,7 @@ class BlockLayered extends Module
 		}
 
 		/* Analyze all the filters selected by the user and store them into a tab */
-		$selected_filters = array('category' => array(), 'manufacturer' => array(), 'quantity' => array(), 'condition' => array());
+		$selected_filters = array('category' => array(), 'manufacturer' => array(), 'supplier' => array(), 'quantity' => array(), 'condition' => array());
 		foreach ($_GET as $key => $value)
 			if (substr($key, 0, 8) == 'layered_')
 			{
@@ -1755,7 +1780,7 @@ class BlockLayered extends Module
 						$selected_filters['condition'][] = $value;
 					else if ($res[1] == 'quantity' && (!$value || $value == 1))
 						$selected_filters['quantity'][] = $value;
-					else if (in_array($res[1], array('category', 'manufacturer')))
+					else if (in_array($res[1], array('category', 'manufacturer', 'supplier')))
 					{
 						if (!isset($selected_filters[$res[1].($id_key ? '_'.$id_key : '')]))
 							$selected_filters[$res[1].($id_key ? '_'.$id_key : '')] = array();
@@ -1863,6 +1888,10 @@ class BlockLayered extends Module
 
 				case 'manufacturer':
 					$query_filters_where .= ' AND p.id_manufacturer IN ('.implode($selected_filters['manufacturer'], ',').')';
+				break;
+
+				case 'supplier':
+					$query_filters_where .= ' AND p.id_supplier IN ('.implode($selected_filters['supplier'], ',').')';
 				break;
 
 				case 'condition':
@@ -2019,6 +2048,7 @@ class BlockLayered extends Module
 					image_shop.`id_image` id_image,
 					il.legend,
 					m.name manufacturer_name,
+					s.name supplier_name,
 					'.(Combination::isFeatureActive() ? 'product_attribute_shop.id_product_attribute id_product_attribute,' : '').'
 					DATEDIFF('.$alias_where.'.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00", INTERVAL '.(int)$nb_day_new_product.' DAY)) > 0 AS new,
 					stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity'.(Combination::isFeatureActive() ? ', product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity' : '').'
@@ -2033,6 +2063,7 @@ class BlockLayered extends Module
 					ON (image_shop.`id_product` = p.`id_product` AND image_shop.cover=1 AND image_shop.id_shop='.(int)$context->shop->id.')
 				LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$cookie->id_lang.')
 				LEFT JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
+				LEFT JOIN '._DB_PREFIX_.'supplier s ON (s.id_supplier = p.id_supplier)
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
 				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
@@ -2049,6 +2080,7 @@ class BlockLayered extends Module
 					MAX(image_shop.`id_image`) id_image,
 					il.legend,
 					m.name manufacturer_name,
+					s.name supplier_name,
 					'.(Combination::isFeatureActive() ? 'MAX(product_attribute_shop.id_product_attribute) id_product_attribute,' : '').'
 					DATEDIFF('.$alias_where.'.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00", INTERVAL '.(int)$nb_day_new_product.' DAY)) > 0 AS new,
 					stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity'.(Combination::isFeatureActive() ? ', MAX(product_attribute_shop.minimal_quantity) AS product_attribute_minimal_quantity' : '').'
@@ -2063,6 +2095,7 @@ class BlockLayered extends Module
 				Shop::addSqlAssociation('image', 'i', false, 'image_shop.cover=1').'
 				LEFT JOIN `'._DB_PREFIX_.'image_lang` il ON (image_shop.`id_image` = il.`id_image` AND il.`id_lang` = '.(int)$cookie->id_lang.')
 				LEFT JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
+				LEFT JOIN '._DB_PREFIX_.'supplier s ON (s.id_supplier = p.id_supplier)
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
 				GROUP BY product_shop.id_product
@@ -2116,7 +2149,7 @@ class BlockLayered extends Module
 
 		Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('DROP TEMPORARY TABLE IF EXISTS '._DB_PREFIX_.'cat_restriction', false);
 		Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_restriction ENGINE=MEMORY
-													SELECT DISTINCT cp.id_product, p.id_manufacturer, product_shop.condition, p.weight FROM '._DB_PREFIX_.'category_product cp
+													SELECT DISTINCT cp.id_product, p.id_manufacturer, p.id_supplier, product_shop.condition, p.weight FROM '._DB_PREFIX_.'category_product cp
 													INNER JOIN '._DB_PREFIX_.'category c ON (c.id_category = cp.id_category AND
 													'.(Configuration::get('PS_LAYERED_FULL_TREE') ? 'c.nleft >= '.(int)$parent->nleft.'
 													AND c.nright <= '.(int)$parent->nright : 'c.id_category = '.(int)$id_parent).'
@@ -2129,6 +2162,7 @@ class BlockLayered extends Module
 
 		Db::getInstance(_PS_USE_SQL_SLAVE_)->execute('ALTER TABLE '._DB_PREFIX_.'cat_restriction ADD PRIMARY KEY (id_product),
 													ADD KEY `id_manufacturer` (`id_manufacturer`,`id_product`) USING BTREE,
+													ADD KEY `id_supplier` (`id_supplier`,`id_product`) USING BTREE,
 													ADD KEY `condition` (`condition`,`id_product`) USING BTREE,
 													ADD KEY `weight` (`weight`,`id_product`) USING BTREE', false);
 
@@ -2200,13 +2234,35 @@ class BlockLayered extends Module
 						$sql_query['second_query'] = '
 							SELECT m.name, 0 nbr, m.id_manufacturer
 
-							FROM '._DB_PREFIX_.'cat_restriction p JOIN
+							FROM '._DB_PREFIX_.'cat_restriction p
 							INNER JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
 							WHERE 1
 							GROUP BY p.id_manufacturer ORDER BY m.name';
 					}
 
 					break;
+
+				case 'supplier':
+					$sql_query['select'] = 'SELECT COUNT(DISTINCT p.id_product) nbr, s.id_supplier, s.name ';
+					$sql_query['from'] = '
+					FROM '._DB_PREFIX_.'cat_restriction p
+					INNER JOIN '._DB_PREFIX_.'supplier s ON (s.id_supplier = p.id_supplier) ';
+					$sql_query['where'] = 'WHERE 1';
+					$sql_query['group'] = ' GROUP BY p.id_supplier ORDER BY s.name';
+
+					if (!Configuration::get('PS_LAYERED_HIDE_0_VALUES'))
+					{
+						$sql_query['second_query'] = '
+							SELECT s.name, 0 nbr, s.id_supplier
+
+							FROM '._DB_PREFIX_.'cat_restriction p
+							INNER JOIN '._DB_PREFIX_.'supplier s ON (s.id_supplier = p.id_supplier)
+							WHERE 1
+							GROUP BY p.id_manufacturer ORDER BY s.name';
+					}
+
+					break;
+
 				case 'id_attribute_group':// attribute group
 					$sql_query['select'] = '
 					SELECT COUNT(DISTINCT lpa.id_product) nbr, lpa.id_attribute_group,
@@ -2574,6 +2630,29 @@ class BlockLayered extends Module
 					}
 					break;
 
+				case 'supplier':
+					if (isset($products) && $products)
+					{
+						$supplier_array = array();
+							foreach ($products as $supplier)
+							{
+								if (!isset($supplier_array[$supplier['id_supplier']]))
+									$supplier_array[$supplier['id_supplier']] = array('name' => $supplier['name'], 'nbr' => $supplier['nbr']);
+								if (isset($selected_filters['supplier']) && in_array((int)$supplier['id_supplier'], $selected_filters['supplier']))
+									$supplier_array[$supplier['id_supplier']]['checked'] = true;
+							}
+						$filter_blocks[] = array(
+							'type_lite' => 'supplier',
+							'type' => 'supplier',
+							'id_key' => 0,
+							'name' => $this->l('Supplier'),
+							'values' => $supplier_array,
+							'filter_show_limit' => $filter['filter_show_limit'],
+							'filter_type' => $filter['filter_type']
+						);
+					}
+					break;
+
 				case 'id_attribute_group':
 					$attributes_array = array();
 					if (isset($products) && $products)
@@ -2796,6 +2875,8 @@ class BlockLayered extends Module
 			$blacklist[] = 'quantity';
 		if (!Configuration::get('PS_LAYERED_FILTER_INDEX_MNF'))
 			$blacklist[] = 'manufacturer';
+		if (!Configuration::get('PS_LAYERED_FILTER_INDEX_SPL'))
+			$blacklist[] = 'supplier';
 		if (!Configuration::get('PS_LAYERED_FILTER_INDEX_CAT'))
 			$blacklist[] = 'category';
 
@@ -3057,6 +3138,21 @@ class BlockLayered extends Module
 				return array('where' => $query_filters, 'join' => 'LEFT JOIN `'._DB_PREFIX_.'manufacturer` m ON (m.id_manufacturer = p.id_manufacturer) ');
 	}
 
+	private static function getSupplierFilterSubQuery($filter_value, $ignore_join = false)
+	{
+		if (empty($filter_value))
+			$query_filters = '';
+		else
+		{
+			array_walk($filter_value, create_function('&$id_supplier', '$id_supplier = (int)$id_supplier;'));
+			$query_filters = ' AND p.id_supplier IN ('.implode($filter_value, ',').')';
+		}
+			if ($ignore_join)
+				return array('where' => $query_filters);
+			else
+				return array('where' => $query_filters, 'join' => 'LEFT JOIN `'._DB_PREFIX_.'supplier` s ON (s.id_supplier = p.id_supplier) ');
+	}
+
 	private static function getConditionFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (count($filter_value) == 3 || empty($filter_value))
@@ -3234,7 +3330,7 @@ class BlockLayered extends Module
 		`id_shop` INT(11) UNSIGNED NOT NULL,
 		`id_category` INT(10) UNSIGNED NOT NULL,
 		`id_value` INT(10) UNSIGNED NULL DEFAULT \'0\',
-		`type` ENUM(\'category\',\'id_feature\',\'id_attribute_group\',\'quantity\',\'condition\',\'manufacturer\',\'weight\',\'price\') NOT NULL,
+		`type` ENUM(\'category\',\'id_feature\',\'id_attribute_group\',\'quantity\',\'condition\',\'manufacturer\',\'supplier\',\'weight\',\'price\') NOT NULL,
 		`position` INT(10) UNSIGNED NOT NULL,
 		`filter_type` int(10) UNSIGNED NOT NULL DEFAULT 0,
 		`filter_show_limit` int(10) UNSIGNED NOT NULL DEFAULT 0,
@@ -3391,6 +3487,12 @@ class BlockLayered extends Module
 					$done_categories[(int)$id_category]['m'] = true;
 					$to_insert = true;
 				}
+				if (!isset($done_categories[(int)$id_category]['s']))
+				{
+					$filter_data['layered_selection_supplier'] = array('filter_type' => 0, 'filter_show_limit' => 0);
+					$done_categories[(int)$id_category]['s'] = true;
+					$to_insert = true;
+				}
 				if (!isset($done_categories[(int)$id_category]['c']))
 				{
 					$filter_data['layered_selection_condition'] = array('filter_type' => 0, 'filter_show_limit' => 0);
@@ -3475,6 +3577,8 @@ class BlockLayered extends Module
 									$sql_to_insert .= '('.(int)$id_category.', '.(int)$id_shop.', NULL,\'price\','.(int)$n.', '.(int)$limit.', '.(int)$type.'),';
 								else if ($key == 'layered_selection_manufacturer')
 									$sql_to_insert .= '('.(int)$id_category.', '.(int)$id_shop.', NULL,\'manufacturer\','.(int)$n.', '.(int)$limit.', '.(int)$type.'),';
+								else if ($key == 'layered_selection_supplier')
+									$sql_to_insert .= '('.(int)$id_category.', '.(int)$id_shop.', NULL,\'supplier\','.(int)$n.', '.(int)$limit.', '.(int)$type.'),';
 								else if (substr($key, 0, 21) == 'layered_selection_ag_')
 									$sql_to_insert .= '('.(int)$id_category.', '.(int)$id_shop.', '.(int)str_replace('layered_selection_ag_', '', $key).',
 										\'id_attribute_group\','.(int)$n.', '.(int)$limit.', '.(int)$type.'),';
