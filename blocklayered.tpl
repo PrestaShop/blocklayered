@@ -204,6 +204,8 @@ param_product_url = '';
 								<li style="display: none;">
 									<input class="layered_{$filter.type}_range" id="layered_{$filter.type}_range_min" type="hidden" value="{$filter.values[0]}"/>
 									<input class="layered_{$filter.type}_range" id="layered_{$filter.type}_range_max" type="hidden" value="{$filter.values[1]}"/>
+									<input class="layered_{$filter.type}_range" id="layered_{$filter.type}_limit_min" type="hidden" value="{$filter.min}"/>
+									<input class="layered_{$filter.type}_range" id="layered_{$filter.type}_limit_max" type="hidden" value="{$filter.max}"/>
 								</li>
 								{/if}
 							{/if}
