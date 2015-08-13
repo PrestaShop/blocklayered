@@ -3086,15 +3086,17 @@ class BlockLayered extends Module
 		$nArray = array_unique($nArray);
 		asort($nArray);
 
+		$add_colors_to_product_list = true;
 		Hook::exec(
 			'actionProductListModifier',
 			array(
 				'nb_products' => &$nb_products,
 				'cat_products' => &$products,
+				'add_colors_to_product_list' => &$add_colors_to_product_list,
 			)
 		);
 
-		if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true)
+		if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true && $add_colors_to_product_list)
 			$this->context->controller->addColorsToProductList($products);
 
 		$category = new Category(Tools::getValue('id_category_layered', Configuration::get('PS_HOME_CATEGORY')), (int)$cookie->id_lang);
