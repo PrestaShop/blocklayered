@@ -3038,7 +3038,7 @@ class BlockLayered extends Module
 		$query_filters_join = '';
 
 		$query_filters = ' AND sav.quantity '.(!$filter_value[0] ? '<=' : '>').' 0 ';
-		$query_filters_join .= 'LEFT JOIN `'._DB_PREFIX_.'stock_available` sav ON (sav.id_product = p.id_product '.StockAvailable::addSqlShopRestriction(null, null,  'sav').') ';
+		$query_filters_join = 'LEFT JOIN `'._DB_PREFIX_.'stock_available` sav ON (sav.id_product = p.id_product '.StockAvailable::addSqlShopRestriction(null, null,  'sav').') ';
 
 		return array('where' => $query_filters, 'join' => $query_filters_join);
 	}
