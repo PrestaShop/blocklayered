@@ -37,7 +37,7 @@ class BlockLayered extends Module
 	{
 		$this->name = 'blocklayered';
 		$this->tab = 'front_office_features';
-		$this->version = '2.1.2';
+		$this->version = '2.1.3';
 		$this->author = 'PrestaShop';
 		$this->need_instance = 0;
 		$this->bootstrap = true;
@@ -2005,8 +2005,15 @@ class BlockLayered extends Module
 			$this->products = array();
 		else
 		{
-			$product_per_page = isset($this->context->cookie->nb_item_per_page) ? (int)$this->context->cookie->nb_item_per_page : Configuration::get('PS_PRODUCTS_PER_PAGE'); 
-			$n = (int)Tools::getValue('n', Configuration::get('PS_PRODUCTS_PER_PAGE'));
+			$product_per_page = isset($this->context->cookie->nb_item_per_page) ? (int)$this->context->cookie->nb_item_per_page : Configuration::get('PS_PRODUCTS_PER_PAGE');
+			$default_products_per_page = max(1, (int)Configuration::get('PS_PRODUCTS_PER_PAGE'));
+		        $n = $default_products_per_page;
+		        if (isset($this->context->cookie->nb_item_per_page)) {
+		            $n = (int)$this->context->cookie->nb_item_per_page;
+		        }
+		        if ((int)Tools::getValue('n')) {
+		            $n = (int)Tools::getValue('n');
+		        }
 			$nb_day_new_product = (Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20);
 
 			if (version_compare(_PS_VERSION_, '1.6.1', '>=') === true)
