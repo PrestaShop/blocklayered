@@ -74,6 +74,7 @@ class BlockLayered extends Module
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_CAT', 0);
 			Configuration::updateValue('PS_ATTRIBUTE_ANCHOR_SEPARATOR', '-');
 			Configuration::updateValue('PS_LAYERED_FILTER_PRICE_ROUNDING', 1);
+			Configuration::updateValue('PS_LAYERED_SHOW_ONLY_AVAILABLE', 0);
 
 			$this->rebuildLayeredStructure();
 			$this->buildLayeredCategories();
@@ -119,6 +120,7 @@ class BlockLayered extends Module
 		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_MNF');
 		Configuration::deleteByName('PS_LAYERED_FILTER_INDEX_CAT');
 		Configuration::deleteByName('PS_LAYERED_FILTER_PRICE_ROUNDING');
+		Configuration::deleteByName('PS_LAYERED_SHOW_ONLY_AVAILABLE');
 
 		Db::getInstance()->execute('DROP TABLE IF EXISTS '._DB_PREFIX_.'layered_price_index');
 		Db::getInstance()->execute('DROP TABLE IF EXISTS '._DB_PREFIX_.'layered_friendly_url');
@@ -1476,6 +1478,7 @@ class BlockLayered extends Module
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_MNF', (int)Tools::getValue('ps_layered_filter_index_manufacturer'));
 			Configuration::updateValue('PS_LAYERED_FILTER_INDEX_CAT', (int)Tools::getValue('ps_layered_filter_index_category'));
 			Configuration::updateValue('PS_LAYERED_FILTER_PRICE_ROUNDING', (int)Tools::getValue('ps_layered_filter_price_rounding'));
+			Configuration::updateValue('PS_LAYERED_SHOW_ONLY_AVAILABLE', (int)Tools::getValue('ps_layered_show_only_available'));
 
 			if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true)
 				$message = '<div class="alert alert-success">'.$this->l('Settings saved successfully').'</div>';
@@ -1655,7 +1658,8 @@ class BlockLayered extends Module
 				'index_mnf' => Configuration::get('PS_LAYERED_FILTER_INDEX_MNF'),
 				'index_cat' => Configuration::get('PS_LAYERED_FILTER_INDEX_CAT'),
 				'limit_warning' => $this->displayLimitPostWarning(21+count($attribute_groups)*3+count($features)*3),
-				'price_use_rounding' => (bool)Configuration::get('PS_LAYERED_FILTER_PRICE_ROUNDING')
+				'price_use_rounding' => (bool)Configuration::get('PS_LAYERED_FILTER_PRICE_ROUNDING'),
+				'show_only_available' => Configuration::get('PS_LAYERED_SHOW_ONLY_AVAILABLE')
 			));
 
 			if (version_compare(_PS_VERSION_, '1.6.0', '>=') === true)
@@ -1780,6 +1784,8 @@ class BlockLayered extends Module
 	{
 		global $cookie;
 
+		$context = Context::getContext();
+
 		if (!empty($this->products))
 			return $this->products;
 
@@ -1827,18 +1833,29 @@ class BlockLayered extends Module
 				case 'id_attribute_group':
 					$sub_queries = array();
 
+					static $ps_layered_show_only_available = null;
+
+					if ($ps_layered_show_only_available === null) {
+						$ps_layered_show_only_available = Configuration::get('PS_LAYERED_SHOW_ONLY_AVAILABLE');
+					}
 
 					foreach ($filter_values as $filter_value)
 					{
 						$filter_value_array = explode('_', $filter_value);
 						if (!isset($sub_queries[$filter_value_array[0]]))
 							$sub_queries[$filter_value_array[0]] = array();
-						$sub_queries[$filter_value_array[0]][] = 'pac.`id_attribute` = '.(int)$filter_value_array[1];
+						$sub_queries[$filter_value_array[0]][] = '(pac.`id_attribute` = '.(int)$filter_value_array[1].($ps_layered_show_only_available ? ' AND sa.`quantity`>0' : '').')';
 					}
 					foreach ($sub_queries as $sub_query)
 					{
 						$query_filters_where .= ' AND p.id_product IN (SELECT pa.`id_product`
 						FROM `'._DB_PREFIX_.'product_attribute_combination` pac
+						LEFT JOIN `'._DB_PREFIX_.'stock_available` sa
+						ON
+						(
+							sa.`id_product_attribute` = pac.`id_product_attribute`
+							AND sa.`id_shop` = '.(int)$context->shop->id.'
+						)
 						LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
 						ON (pa.`id_product_attribute` = pac.`id_product_attribute`)'.
 						Shop::addSqlAssociation('product_attribute', 'pa').'
@@ -1895,7 +1912,6 @@ class BlockLayered extends Module
 			}
 		}
 
-		$context = Context::getContext();
 		$id_currency = (int)$context->currency->id;
 
 		$price_filter_query_in = ''; // All products with price range between price filters limits
