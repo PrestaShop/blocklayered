@@ -1549,8 +1549,6 @@ class BlockLayered extends Module
 			$tree_categories_helper = new Helper();
 		}
 
-		$module_url = Tools::getProtocol(Tools::usingSecureMode()).$_SERVER['HTTP_HOST'].$this->getPathUri();
-
 		if (method_exists($this->context->controller, 'addJquery'))
 		{
 			$this->context->controller->addJS($this->_path.'js/blocklayered_admin.js');
@@ -1640,10 +1638,10 @@ class BlockLayered extends Module
 				'id_lang' => Context::getContext()->cookie->id_lang,
 				'token' => substr(Tools::encrypt('blocklayered/index'), 0, 10),
 				'base_folder' => urlencode(_PS_ADMIN_DIR_),
-				'price_indexer_url' => $module_url.'blocklayered-price-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10),
-				'full_price_indexer_url' => $module_url.'blocklayered-price-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10).'&full=1',
-				'attribute_indexer_url' => $module_url.'blocklayered-attribute-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10),
-				'url_indexer_url' => $module_url.'blocklayered-url-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10).'&truncate=1',
+				'price_indexer_url' => $this->getPathUri().'blocklayered-price-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10),
+				'full_price_indexer_url' => $this->getPathUri().'blocklayered-price-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10).'&full=1',
+				'attribute_indexer_url' => $this->getPathUri().'blocklayered-attribute-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10),
+				'url_indexer_url' => $this->getPathUri().'blocklayered-url-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10).'&truncate=1',
 				'filters_templates' => Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('SELECT * FROM '._DB_PREFIX_.'layered_filter ORDER BY date_add DESC'),
 				'hide_values' => Configuration::get('PS_LAYERED_HIDE_0_VALUES'),
 				'show_quantities' => Configuration::get('PS_LAYERED_SHOW_QTIES'),
