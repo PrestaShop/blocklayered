@@ -1837,12 +1837,14 @@ class BlockLayered extends Module
 					}
 					foreach ($sub_queries as $sub_query)
 					{
-						$query_filters_where .= ' AND p.id_product IN (SELECT pa.`id_product`
-						FROM `'._DB_PREFIX_.'product_attribute_combination` pac
-						LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
-						ON (pa.`id_product_attribute` = pac.`id_product_attribute`)'.
-						Shop::addSqlAssociation('product_attribute', 'pa').'
-						WHERE '.implode(' OR ', $sub_query).') ';
+                                                $query_filters_where .= ' AND p.id_product IN (SELECT pa.`id_product`
+                                                FROM `'._DB_PREFIX_.'product_attribute_combination` pac
+                                                LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa
+                                                ON (pa.`id_product_attribute` = pac.`id_product_attribute`)'.
+                                                Shop::addSqlAssociation('product_attribute', 'pa').'
+                                                JOIN ps_stock_available stock ON stock.id_product_attribute = pa.id_product_attribute
+                                                WHERE ('.implode(' OR ', $sub_query).') and stock.quantity > 0)';
+
 					}
 				break;
 
