@@ -1701,7 +1701,7 @@ class BlockLayered extends Module
 				$url = preg_replace('/\/(?:\w*)\/(?:[0-9]+[-\w]*)([^\?]*)\??.*/', '$1', Tools::safeOutput($_SERVER['REQUEST_URI'], true));
 
 			$url_attributes = explode('/', ltrim($url, '/'));
-			$selected_filters = array('category' => array());
+			$selected_filters = array('category' => array($id_parent));
 			if (!empty($url_attributes))
 			{
 				foreach ($url_attributes as $url_attribute)
@@ -1741,7 +1741,7 @@ class BlockLayered extends Module
 
 		/* Analyze all the filters selected by the user and store them into a tab */
 		$selected_filters = array('category' => array(), 'manufacturer' => array(), 'quantity' => array(), 'condition' => array());
-		foreach ($_GET as $key => $value)
+		foreach ($_GET as $key => $value) {
 			if (substr($key, 0, 8) == 'layered_')
 			{
 				preg_match('/^(.*)_([0-9]+|new|used|refurbished|slider)$/', substr($key, 8, strlen($key) - 8), $res);
@@ -1774,6 +1774,12 @@ class BlockLayered extends Module
 						$selected_filters[$res[1]] = $tmp_tab;
 				}
 			}
+		}
+
+		if (empty($selected_filters['category'])) {
+			$selected_filters['category'][] = $id_parent;
+		}
+
 		return $selected_filters;
 	}
 
