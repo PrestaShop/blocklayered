@@ -2808,7 +2808,6 @@ class BlockLayered extends Module
 			$blacklist[] = 'category';
 
 		$global_nofollow = false;
-		$categorie_link = Context::getContext()->link->getCategoryLink($parent, null, null);
 
 		foreach ($filter_blocks as &$type_filter)
 		{
@@ -2866,7 +2865,7 @@ class BlockLayered extends Module
 						if (strpos($parameters, '/'.$value) !== false)
 							$nofollow = true;
 
-					$type_filter['values'][$key]['link'] = $categorie_link.'#'.ltrim($parameters, '/');
+					$type_filter['values'][$key]['link'] = '#'.ltrim($parameters, '/');
 					$type_filter['values'][$key]['rel'] = ($nofollow) ? 'nofollow' : '';
 				}
 			}
