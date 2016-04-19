@@ -523,24 +523,15 @@ function reloadContent(params_plus)
 
 function initLocationChange(func, time)
 {
-	if(!time) time = 500;
 	var current_friendly_url = getUrlParams();
-	setInterval(function()
-	{
-		if(getUrlParams() != current_friendly_url && !lockLocationChecking)
-		{
-			// Don't reload page if current_friendly_url and real url match
-			if (current_friendly_url.replace(/^#(\/)?/, '') == getUrlParams().replace(/^#(\/)?/, ''))
-				return;
-			
-			lockLocationChecking = true;
-			reloadContent('&selected_filters='+getUrlParams().replace(/^#/, ''));
-		}
-		else {
-			lockLocationChecking = false;
-			current_friendly_url = getUrlParams();
-		}
-	}, time);
+
+	if (getUrlParams() != current_friendly_url) {
+		// Don't reload page if current_friendly_url and real url match
+		if (current_friendly_url.replace(/^#(\/)?/, '') == getUrlParams().replace(/^#(\/)?/, ''))
+			return;
+
+		reloadContent('&selected_filters='+getUrlParams().replace(/^#/, ''));
+	}
 }
 
 function getUrlParams()
