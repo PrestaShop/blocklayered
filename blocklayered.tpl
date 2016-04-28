@@ -235,7 +235,7 @@ param_product_url = '';
 		</form>
 	</div>
 	<div id="layered_ajax_loader" style="display: none;">
-		<p><img src="{$img_ps_dir}loader.gif" alt="" /><br />{l s='Loading...' mod='blocklayered'}</p>
+		<p><img src="{$img_ps_dir}loader.gif" alt="{l s='Loading...' mod='blocklayered'}" /><br />{l s='Loading...' mod='blocklayered'}</p>
 	</div>
 </div>
 {else}
@@ -246,7 +246,7 @@ param_product_url = '';
 		</form>
 	</div>
 	<div style="display: none;">
-		<p style=""><img src="{$img_ps_dir}loader.gif" alt="" /><br />{l s='Loading...' mod='blocklayered'}</p>
+		<p style=""><img src="{$img_ps_dir}loader.gif" alt="{l s='Loading...' mod='blocklayered'}" /><br />{l s='Loading...' mod='blocklayered'}</p>
 	</div>
 </div>
 {/if}
