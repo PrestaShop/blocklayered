@@ -1996,10 +1996,10 @@ class BlockLayered extends Module
 				}
 			}
 			if (!empty($product_id_delete_list)) {
-				Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'cat_filter_restriction WHERE id_product IN ('.implode(',', $product_id_delete_list).')');
+				Db::getInstance()->execute('DELETE FROM '._DB_PREFIX_.'cat_filter_restriction WHERE id_product IN ('.implode(',', $product_id_delete_list).')', false);
 			}
 		}
-		$this->nbr_products = Db::getInstance()->getValue('SELECT COUNT(*) FROM '._DB_PREFIX_.'cat_filter_restriction');
+		$this->nbr_products = Db::getInstance()->getValue('SELECT COUNT(*) FROM '._DB_PREFIX_.'cat_filter_restriction', false);
 
 		if ($this->nbr_products == 0)
 			$this->products = array();
@@ -2044,7 +2044,7 @@ class BlockLayered extends Module
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
 				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
-				' LIMIT '.(((int)$this->page - 1) * $n.','.$n));
+				' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
 			}
 			else
 			{
@@ -2075,7 +2075,7 @@ class BlockLayered extends Module
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
 				GROUP BY product_shop.id_product
 				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
-				' LIMIT '.(((int)$this->page - 1) * $n.','.$n));
+				' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
 			}
 		}
 
@@ -2372,7 +2372,7 @@ class BlockLayered extends Module
 			$products = false;
 			if (!empty($sql_query['from']))
 			{
-				$products = Db::getInstance()->executeS($sql_query['select']."\n".$sql_query['from']."\n".$sql_query['join']."\n".$sql_query['where']."\n".$sql_query['group']);
+				$products = Db::getInstance()->executeS($sql_query['select']."\n".$sql_query['from']."\n".$sql_query['join']."\n".$sql_query['where']."\n".$sql_query['group'], true, false);
 			}
 
 			// price & weight have slidebar, so it's ok to not complete recompute the product list
