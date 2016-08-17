@@ -29,9 +29,9 @@ if (!defined('_PS_VERSION_'))
 
 class BlockLayered extends Module
 {
-	private $products;
-	private $nbr_products;
-	private $page = 1;
+	protected $products;
+	protected $nbr_products;
+	protected $page = 1;
 
 	public function __construct()
 	{
@@ -2086,7 +2086,7 @@ class BlockLayered extends Module
 		return $this->products;
 	}
 
-	private static function query($sql_query)
+	protected static function query($sql_query)
 	{
 		return Db::getInstance(_PS_USE_SQL_SLAVE_)->query($sql_query);
 	}
