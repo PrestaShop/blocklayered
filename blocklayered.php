@@ -1685,7 +1685,7 @@ class BlockLayered extends Module
 		return $return;
 	}
 
-	private function getSelectedFilters()
+	protected function getSelectedFilters()
 	{
 		$home_category = Configuration::get('PS_HOME_CATEGORY');
 		$id_parent = (int)Tools::getValue('id_category', Tools::getValue('id_category_layered', $home_category));
