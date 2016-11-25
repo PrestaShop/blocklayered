@@ -45,7 +45,7 @@ param_product_url = '';
 						{foreach from=$filter_values key=filter_key item=filter_value name=f_values}
 							{foreach from=$filters item=filter}
 								{if $filter.type == $filter_type && isset($filter.values)}
-									{if isset($filter.slider)}
+									{if isset($filter.slider) && $filter.filter_type == 0}
 										{if $smarty.foreach.f_values.first}
 											<li>
 												<a href="#" data-rel="layered_{$filter.type}_slider" title="{l s='Cancel' mod='blocklayered'}">x</a>
@@ -75,7 +75,7 @@ param_product_url = '';
 				{/if}
 				{foreach from=$filters item=filter}
 					{if isset($filter.values)}
-						{if isset($filter.slider)}
+						{if isset($filter.slider) && $filter.filter_type == 0}
 						<div class="layered_{$filter.type}" style="display: none;">
 						{else}
 						<div>
@@ -196,7 +196,7 @@ param_product_url = '';
 									</script>
 								</li>
 								{else}
-								{foreach from=$filter.list_of_values  item=values}
+								{foreach from=$filter.list_of_values item=values}
 									<li class="nomargin {if $filter.values[1] == $values[1] && $filter.values[0] == $values[0]}layered_list_selected{/if} layered_list" onclick="$('#layered_{$filter.type}_range_min').val({$values[0]});$('#layered_{$filter.type}_range_max').val({$values[1]});reloadContent();">
 										- {l s='From' mod='blocklayered'} {$values[0]} {$filter.unit} {l s='to' mod='blocklayered'} {$values[1]} {$filter.unit}
 									</li>
