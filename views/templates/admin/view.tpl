@@ -136,6 +136,21 @@
 				</tr>
 				<tr>
 					<td class="label">
+						{l s='Only show available products' mod='blocklayered'}
+					</td>
+					<td>
+						<input type="radio" name="ps_layered_show_only_available" id="ps_layered_show_only_available_on" value="1"{if $show_only_available} checked="checked"{/if}>
+						<label for="ps_layered_show_only_available_on" class="radioCheck">
+							<i class="icon-check-sign color_success"></i> {l s='Yes' mod='blocklayered'}
+						</label>
+						<input type="radio" name="ps_layered_show_only_available" id="ps_layered_show_only_available_off" value="0"{if !$show_only_available} checked="checked"{/if}>
+						<label for="ps_layered_show_only_available_off" class="radioCheck">
+							<i class="icon-ban-circle color_danger"></i> {l s='No' mod='blocklayered'}
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td class="label">
 						{l s='Show products from subcategories' mod='blocklayered'}
 					</td>
 					<td>
