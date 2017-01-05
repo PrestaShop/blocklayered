@@ -1126,7 +1126,7 @@ class BlockLayered extends Module
 
 		if (($nb_products > 0 && !$full || $cursor < $nb_products && $full) && !$ajax)
 		{
-			$token = substr(Tools::encrypt('blocklayered/index'), 0, 10);
+			$token = substr(Tools::hash('blocklayered/index'), 0, 10);
 			if (Tools::usingSecureMode())
 				$domain = Tools::getShopDomainSsl(true);
 			else
@@ -1639,12 +1639,12 @@ class BlockLayered extends Module
 				'PS_LAYERED_INDEXED' => Configuration::getGlobalValue('PS_LAYERED_INDEXED'),
 				'current_url' => Tools::safeOutput(preg_replace('/&deleteFilterTemplate=[0-9]*&id_layered_filter=[0-9]*/', '', $_SERVER['REQUEST_URI'])),
 				'id_lang' => Context::getContext()->cookie->id_lang,
-				'token' => substr(Tools::encrypt('blocklayered/index'), 0, 10),
+				'token' => substr(Tools::hash('blocklayered/index'), 0, 10),
 				'base_folder' => urlencode(_PS_ADMIN_DIR_),
-				'price_indexer_url' => $module_url.'blocklayered-price-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10),
-				'full_price_indexer_url' => $module_url.'blocklayered-price-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10).'&full=1',
-				'attribute_indexer_url' => $module_url.'blocklayered-attribute-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10),
-				'url_indexer_url' => $module_url.'blocklayered-url-indexer.php'.'?token='.substr(Tools::encrypt('blocklayered/index'), 0, 10).'&truncate=1',
+				'price_indexer_url' => $module_url.'blocklayered-price-indexer.php'.'?token='.substr(Tools::hash('blocklayered/index'), 0, 10),
+				'full_price_indexer_url' => $module_url.'blocklayered-price-indexer.php'.'?token='.substr(Tools::hash('blocklayered/index'), 0, 10).'&full=1',
+				'attribute_indexer_url' => $module_url.'blocklayered-attribute-indexer.php'.'?token='.substr(Tools::hash('blocklayered/index'), 0, 10),
+				'url_indexer_url' => $module_url.'blocklayered-url-indexer.php'.'?token='.substr(Tools::hash('blocklayered/index'), 0, 10).'&truncate=1',
 				'filters_templates' => Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('SELECT * FROM '._DB_PREFIX_.'layered_filter ORDER BY date_add DESC'),
 				'hide_values' => Configuration::get('PS_LAYERED_HIDE_0_VALUES'),
 				'show_quantities' => Configuration::get('PS_LAYERED_SHOW_QTIES'),
