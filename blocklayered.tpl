@@ -31,6 +31,7 @@ param_product_url = '#{$param_product_url}';
 {else}
 param_product_url = '';
 {/if}
+blocklayeredSliderName = ["{'","'|implode:$blocklayeredSliderName}"]
 </script>
 <div id="layered_block_left" class="block">
 	<h4 class="title_block">{l s='Product filter' mod='blocklayered'}</h4>
