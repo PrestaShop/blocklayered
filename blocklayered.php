@@ -972,21 +972,21 @@ class BlockLayered extends Module
 
 				case 'category':
 					$categories = Db::getInstance(_PS_USE_SQL_SLAVE_)->executeS('
-						SELECT cl.name, cl.id_lang, c.id_category
+						SELECT cl.name, cl.id_lang, c.id_category, c.id_parent
 						FROM '._DB_PREFIX_.'category c
 						INNER JOIN '._DB_PREFIX_.'category_lang cl ON (c.id_category = cl.id_category)
 						WHERE cl.id_lang = '.(int)$filter['id_lang']
 					);
 
-					foreach ($categories as $category)
-					{
+					foreach ($categories as $category) {
 						if (!isset($attribute_values_by_lang[$category['id_lang']]))
 							$attribute_values_by_lang[$category['id_lang']] = array();
 						if (!isset($attribute_values_by_lang[$category['id_lang']]['category']))
 							$attribute_values_by_lang[$category['id_lang']]['category'] = array();
 						$attribute_values_by_lang[$category['id_lang']]['category'][] = array('name' => $this->translateWord('Categories', $category['id_lang']),
-						'id_name' => null, 'value' => $category['name'], 'id_value' => $category['id_category'],
-						'category_name' => $filter['link_rewrite'], 'type' => $filter['type']);
+							'id_name' => null, 'value' => $category['name'], 'id_value' => $category['id_category'],
+							'category_name' => $filter['link_rewrite'], 'type' => $filter['type'],
+							'id_parent' => $category['id_parent']);
 					}
 					break;
 
@@ -1041,7 +1041,11 @@ class BlockLayered extends Module
 				foreach ($attribute as $param)
 				{
 					$selected_filters = array();
-					$link = '/'.str_replace($this->getAnchor(), '_', Tools::link_rewrite($param['name'])).$this->getAnchor().str_replace($this->getAnchor(), '_', Tools::link_rewrite($param['value']));
+					if ($param['type'] == 'category') {
+						$link = '/' . $param['id_parent'] . $this->getAnchor() . str_replace($this->getAnchor(), '_', Tools::link_rewrite($param['name'])) . $this->getAnchor() . str_replace($this->getAnchor(), '_', Tools::link_rewrite($param['value']));
+					} else {
+						$link = '/' . str_replace($this->getAnchor(), '_', Tools::link_rewrite($param['name'])) . $this->getAnchor() . str_replace($this->getAnchor(), '_', Tools::link_rewrite($param['value']));
+					}
 					$selected_filters[$param['type']] = array();
 
 					if (!isset($param['id_id_value']))
@@ -1717,9 +1721,10 @@ class BlockLayered extends Module
 						$selected_filters[$attribute_name] = array($this->filterVar($url_parameters[0]), $this->filterVar($url_parameters[1]));
 					else
 					{
+						$includeIdParent = ($attribute_name == 'categories') ? $id_parent . $this->getAnchor() : '';
 						foreach ($url_parameters as $url_parameter)
 						{
-							$data = Db::getInstance()->getValue('SELECT data FROM `'._DB_PREFIX_.'layered_friendly_url` WHERE `url_key` = \''.md5('/'.$attribute_name.$this->getAnchor().$url_parameter).'\'');
+							$data = Db::getInstance()->getValue('SELECT data FROM `' . _DB_PREFIX_ . 'layered_friendly_url` WHERE `url_key` = \'' . md5('/' . $includeIdParent . $attribute_name . $this->getAnchor() . $url_parameter) . '\'');
 							if ($data)
 								foreach (Tools::unSerialize($data) as $key_params => $params)
 								{
