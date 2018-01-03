@@ -1930,7 +1930,7 @@ class BlockLayered extends Module
 		{
 			/* Create the table which contains all the id_product in a cat or a tree */
 			Db::getInstance()->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_filter_restriction ENGINE=MEMORY
-														SELECT cp.id_product, MIN(cp.position) position FROM '._DB_PREFIX_.'category c
+														SELECT cp.id_product, cp.position position FROM '._DB_PREFIX_.'category c
 														STRAIGHT_JOIN '._DB_PREFIX_.'category_product cp ON (c.id_category = cp.id_category AND
 														'.(Configuration::get('PS_LAYERED_FULL_TREE') ? 'c.nleft >= '.(int)$parent->nleft.'
 														AND c.nright <= '.(int)$parent->nright : 'c.id_category = '.(int)$id_parent).'
@@ -1944,7 +1944,7 @@ class BlockLayered extends Module
 			$categories = array_map('intval', $selected_filters['category']);
 
 			Db::getInstance()->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_filter_restriction ENGINE=MEMORY
-														SELECT cp.id_product, MIN(cp.position) position FROM '._DB_PREFIX_.'category_product cp
+														SELECT cp.id_product, cp.position position FROM '._DB_PREFIX_.'category_product cp
 														STRAIGHT_JOIN `'._DB_PREFIX_.'product` p ON (p.id_product=cp.id_product)
 														'.$price_filter_query_in.'
 														'.$query_filters_from.'
