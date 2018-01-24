@@ -2016,6 +2016,30 @@ class BlockLayered extends Module
 		            $n = (int)Tools::getValue('n');
 		        }
 			$nb_day_new_product = (Validate::isUnsignedInt(Configuration::get('PS_NB_DAYS_NEW_PRODUCT')) ? Configuration::get('PS_NB_DAYS_NEW_PRODUCT') : 20);
+                       $productsOrder = Tools::getProductsOrder('by', Tools::getValue('orderby'), true);
+
+                       /** Applied discount calculation on the products price when using sorting by price */
+                       if ('p.price' === $productsOrder) {
+                           /** Create temporary table to save the products price after apply the discount calculation */
+                           Db::getInstance()->execute('DROP TEMPORARY TABLE IF EXISTS `' . _DB_PREFIX_ . 'cat_filter_price`', false);
+                           Db::getInstance()->execute(
+                               'CREATE TEMPORARY TABLE `' . _DB_PREFIX_ . 'cat_filter_price` 
+                               (`id_product` INT NOT NULL, `tmp_price` FLOAT NOT NULL)   
+                               ENGINE=MEMORY',
+                               false
+                           );
+
+                           $products = Db::getInstance()->executeS('select `id_product` from `' . _DB_PREFIX_ . 'cat_filter_restriction` ', true, false);
+                           if (!empty($products)) {
+                               $products = array_column($products, 'id_product');
+                               foreach ($products as $productId) {
+                                   Db::getInstance()->execute('INSERT INTO `' . _DB_PREFIX_ . 'cat_filter_price` 
+                                   values (' . $productId . ', ' . ProductCore::getPriceStatic($productId) . ')'
+                                   );
+                               }
+                               $productsOrder = 'cfp.tmp_price';
+                           }
+                       }
 
 			if (version_compare(_PS_VERSION_, '1.6.1', '>=') === true)
 			{
@@ -2031,7 +2055,9 @@ class BlockLayered extends Module
 					'.(Combination::isFeatureActive() ? 'product_attribute_shop.id_product_attribute id_product_attribute,' : '').'
 					DATEDIFF('.$alias_where.'.`date_add`, DATE_SUB("'.date('Y-m-d').' 00:00:00", INTERVAL '.(int)$nb_day_new_product.' DAY)) > 0 AS new,
 					stock.out_of_stock, IFNULL(stock.quantity, 0) as quantity'.(Combination::isFeatureActive() ? ', product_attribute_shop.minimal_quantity AS product_attribute_minimal_quantity' : '').'
-				FROM '._DB_PREFIX_.'cat_filter_restriction cp
+				        '. (('cfp.tmp_price' === $productsOrder) ? ' , cfp.`tmp_price`' : '') .'
+				FROM '._DB_PREFIX_.'cat_filter_restriction cp 
+				'. (('cfp.tmp_price' === $productsOrder) ? 'LEFT JOIN `'._DB_PREFIX_.'cat_filter_price` cfp ON cfp.`id_product` = cp.`id_product` ' : '') .'
 				LEFT JOIN `'._DB_PREFIX_.'product` p ON p.`id_product` = cp.`id_product`
 				'.Shop::addSqlAssociation('product', 'p').
 				(Combination::isFeatureActive() ?
@@ -2044,7 +2070,7 @@ class BlockLayered extends Module
 				LEFT JOIN '._DB_PREFIX_.'manufacturer m ON (m.id_manufacturer = p.id_manufacturer)
 				'.Product::sqlStock('p', 0).'
 				WHERE '.$alias_where.'.`active` = 1 AND '.$alias_where.'.`visibility` IN ("both", "catalog")
-				ORDER BY '.Tools::getProductsOrder('by', Tools::getValue('orderby'), true).' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
+				ORDER BY '. $productsOrder .' '.Tools::getProductsOrder('way', Tools::getValue('orderway')).' , cp.id_product'.
 				' LIMIT '.(((int)$this->page - 1) * $n.','.$n), true, false);
 			}
 			else
