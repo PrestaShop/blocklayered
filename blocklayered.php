@@ -3000,15 +3000,14 @@ class BlockLayered extends Module
 
 	private static function getId_featureFilterSubQuery($filter_value, $ignore_join = false)
 	{
-		if (empty($filter_value))
-			return array();
-		$query_filters = ' AND EXISTS (SELECT * FROM '._DB_PREFIX_.'feature_product fp WHERE fp.id_product = p.id_product AND ';
-		foreach ($filter_value as $filter_val)
-			$query_filters .= 'fp.`id_feature_value` = '.(int)$filter_val.' OR ';
-		$query_filters = rtrim($query_filters, 'OR ').') ';
-
+		if (empty($filter_value)) return array();
+		$query_filters = ' AND EXISTS (SELECT * FROM '._DB_PREFIX_.'feature_product fp WHERE fp.id_product = p.id_product AND fp.`id_feature_value` IN (';
+		$query_filters .=implode(', ', array_map('intval', $filter_value));
+		$query_filters .= '))';
+		
 		return array('where' => $query_filters);
 	}
+	
 	private static function getId_attribute_groupFilterSubQuery($filter_value, $ignore_join = false)
 	{
 		if (empty($filter_value))
@@ -3017,11 +3016,10 @@ class BlockLayered extends Module
 		AND EXISTS (SELECT *
 		FROM `'._DB_PREFIX_.'product_attribute_combination` pac
 		LEFT JOIN `'._DB_PREFIX_.'product_attribute` pa ON (pa.`id_product_attribute` = pac.`id_product_attribute`)
-		WHERE pa.id_product = p.id_product AND ';
+		WHERE pa.id_product = p.id_product AND pac.`id_attribute` IN(';
 
-		foreach ($filter_value as $filter_val)
-			$query_filters .= 'pac.`id_attribute` = '.(int)$filter_val.' OR ';
-		$query_filters = rtrim($query_filters, 'OR ').') ';
+		$query_filters .=implode(', ', array_map('intval', $filter_value));
+		$query_filters .= '))';
 
 		return array('where' => $query_filters);
 	}
@@ -3030,12 +3028,11 @@ class BlockLayered extends Module
 	{
 		if (empty($filter_value))
 			return array();
-		$query_filters_where = ' AND EXISTS (SELECT * FROM '._DB_PREFIX_.'category_product cp WHERE id_product = p.id_product AND ';
-		foreach ($filter_value as $id_category)
-			$query_filters_where .= 'cp.`id_category` = '.(int)$id_category.' OR ';
-		$query_filters_where = rtrim($query_filters_where, 'OR ').') ';
+		$query_filters = ' AND EXISTS (SELECT * FROM '._DB_PREFIX_.'category_product cp WHERE id_product = p.id_product AND cp.`id_category` IN(';
+		$query_filters .=implode(', ', array_map('intval', $filter_value));
+		$query_filters .= '))';
 
-		return array('where' => $query_filters_where);
+		return array('where' => $query_filters);
 	}
 
 	private static function getQuantityFilterSubQuery($filter_value, $ignore_join = false)
