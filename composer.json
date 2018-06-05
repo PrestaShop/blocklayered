@@ -2,7 +2,7 @@
   "name": "prestashop/blocklayered",
   "description": "PrestaShop module blocklayered",
   "homepage": "https://github.com/PrestaShop/blocklayered",
-  "license": "AFL - Academic Free License (AFL 3.0)",
+  "license": "AFL-3.0",
   "authors": [
     {
       "name": "PrestaShop SA",
