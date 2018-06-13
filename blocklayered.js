@@ -27,6 +27,7 @@ var ajaxQueries = new Array();
 var ajaxLoaderOn = 0;
 var sliderList = new Array();
 var slidersInit = false;
+var ajaxTimestamp;
 
 $(document).ready(function()
 {
@@ -409,14 +410,22 @@ function reloadContent(params_plus)
 		if (option.selected)
 			n = '&n='+option.value;
 	});
+
+	// use cache and refresh it each 10 minutes
+	var currentTimestamp = new Date().getTime();
+	var tenMinutes = 600000;
+	if (typeof ajaxTimestamp === 'undefined' || currentTimestamp - ajaxTimestamp >= tenMinutes)
+	{
+		ajaxTimestamp = currentTimestamp;
+	}
 	
 	ajaxQuery = $.ajax(
 	{
 		type: 'GET',
-		url: baseDir + 'modules/blocklayered/blocklayered-ajax.php',
+		url: baseDir + 'modules/blocklayered/blocklayered-ajax.php?t=' + ajaxTimestamp,
 		data: data+params_plus+n,
 		dataType: 'json',
-		cache: false, // @todo see a way to use cache and to add a timestamps parameter to refresh cache each 10 minutes for example
+		cache: true,
 		success: function(result)
 		{
 			$('#layered_block_left').replaceWith(utf8_decode(result.filtersBlock));
