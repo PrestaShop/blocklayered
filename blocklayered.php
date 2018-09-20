@@ -1701,7 +1701,19 @@ class BlockLayered extends Module
 				$url = preg_replace('/\/(?:\w*)\/(?:[0-9]+[-\w]*)([^\?]*)\??.*/', '$1', Tools::safeOutput($_SERVER['REQUEST_URI'], true));
 
 			$url_attributes = explode('/', ltrim($url, '/'));
-			$selected_filters = array('category' => array($id_parent));
+
+			$selected_categories = array();
+			if (Configuration::get('PS_LAYERED_FULL_TREE')) {
+				$categories_tree = Category::getAllCategoriesName($id_parent);
+				foreach ($categories_tree as $child_cat) {
+					$selected_categories[] = $child_cat['id_category'];
+				}
+			} else {
+				// If not specified, the sorting is all messed up
+				$selected_categories[] = $id_parent;
+			}
+
+			$selected_filters = array('category' => $selected_categories);
 			if (!empty($url_attributes))
 			{
 				foreach ($url_attributes as $url_attribute)
