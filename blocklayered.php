@@ -1701,7 +1701,7 @@ class BlockLayered extends Module
 				$url = preg_replace('/\/(?:\w*)\/(?:[0-9]+[-\w]*)([^\?]*)\??.*/', '$1', Tools::safeOutput($_SERVER['REQUEST_URI'], true));
 
 			$url_attributes = explode('/', ltrim($url, '/'));
-			$selected_filters = array('category' => array($id_parent));
+			$selected_filters = array('category' => array());
 			if (!empty($url_attributes))
 			{
 				foreach ($url_attributes as $url_attribute)
@@ -1774,10 +1774,6 @@ class BlockLayered extends Module
 						$selected_filters[$res[1]] = $tmp_tab;
 				}
 			}
-		}
-
-		if (empty($selected_filters['category'])) {
-			$selected_filters['category'][] = $id_parent;
 		}
 
 		return $selected_filters;
@@ -1934,29 +1930,30 @@ class BlockLayered extends Module
 		Db::getInstance()->execute('DROP TEMPORARY TABLE IF EXISTS '._DB_PREFIX_.'cat_filter_restriction', false);
 		if (empty($selected_filters['category']))
 		{
-			/* Create the table which contains all the id_product in a cat or a tree */
-			Db::getInstance()->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_filter_restriction ENGINE=MEMORY
-														SELECT cp.id_product, MIN(cp.position) position FROM '._DB_PREFIX_.'category c
-														STRAIGHT_JOIN '._DB_PREFIX_.'category_product cp ON (c.id_category = cp.id_category AND
-														'.(Configuration::get('PS_LAYERED_FULL_TREE') ? 'c.nleft >= '.(int)$parent->nleft.'
-														AND c.nright <= '.(int)$parent->nright : 'c.id_category = '.(int)$id_parent).'
-														AND c.active = 1)
-														STRAIGHT_JOIN `'._DB_PREFIX_.'product` p ON (p.id_product=cp.id_product)
-														'.$price_filter_query_in.'
-														'.$query_filters_from.'
-														WHERE 1 '.$query_filters_where.'
-														GROUP BY cp.id_product ORDER BY position, id_product', false);
-		} else {
-			$categories = array_map('intval', $selected_filters['category']);
-
-			Db::getInstance()->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_filter_restriction ENGINE=MEMORY
-														SELECT cp.id_product, MIN(cp.position) position FROM '._DB_PREFIX_.'category_product cp
-														STRAIGHT_JOIN `'._DB_PREFIX_.'product` p ON (p.id_product=cp.id_product)
-														'.$price_filter_query_in.'
-														'.$query_filters_from.'
-														WHERE cp.`id_category` IN ('.implode(',', $categories).') '.$query_filters_where.'
-														GROUP BY cp.id_product ORDER BY position, id_product', false);
+			$home_category = Configuration::get('PS_HOME_CATEGORY');
+			$id_parent = (int)Tools::getValue('id_category', Tools::getValue('id_category_layered', $home_category));
+			
+			$selected_categories = array();
+			if (Configuration::get('PS_LAYERED_FULL_TREE')) {
+				$categories_tree = Category::getAllCategoriesName($id_parent);
+				foreach ($categories_tree as $child_cat) {
+					$selected_categories[] = $child_cat['id_category'];
+				}
+			} else {
+				// If not specified, the sorting is all messed up
+				$selected_categories[] = $id_parent;
+			}
+ 			$selected_filters['category'] = $selected_categories;
 		}
+		$categories = array_map('intval', $selected_filters['category']);
+
+		Db::getInstance()->execute('CREATE TEMPORARY TABLE '._DB_PREFIX_.'cat_filter_restriction ENGINE=MEMORY
+													SELECT cp.id_product, MIN(cp.position) position FROM '._DB_PREFIX_.'category_product cp
+													STRAIGHT_JOIN `'._DB_PREFIX_.'product` p ON (p.id_product=cp.id_product)
+													'.$price_filter_query_in.'
+													'.$query_filters_from.'
+													WHERE cp.`id_category` IN ('.implode(',', $categories).') '.$query_filters_where.'
+													GROUP BY cp.id_product ORDER BY position, id_product', false);
 		Db::getInstance()->execute('ALTER TABLE '._DB_PREFIX_.'cat_filter_restriction ADD PRIMARY KEY (id_product), ADD KEY (position, id_product) USING BTREE', false);
 
 		if (isset($price_filter) && $price_filter) {
