@@ -1930,9 +1930,6 @@ class BlockLayered extends Module
 		Db::getInstance()->execute('DROP TEMPORARY TABLE IF EXISTS '._DB_PREFIX_.'cat_filter_restriction', false);
 		if (empty($selected_filters['category']))
 		{
-			$home_category = Configuration::get('PS_HOME_CATEGORY');
-			$id_parent = (int)Tools::getValue('id_category', Tools::getValue('id_category_layered', $home_category));
-			
 			$selected_categories = array();
 			if (Configuration::get('PS_LAYERED_FULL_TREE')) {
 				$categories_tree = Category::getAllCategoriesName($id_parent);
