@@ -1308,23 +1308,30 @@ class BlockLayered extends Module
 		static $_MODULES = array();
 		global $_MODULE;
 
-			$file = _PS_MODULE_DIR_.$this->name.'/translations/'.Language::getIsoById($id_lang).'.php';
 
-		if (!array_key_exists($id_lang, $_MODULES))
-		{
-			if (file_exists($file1 = _PS_MODULE_DIR_.$this->name.'/translations/'.Language::getIsoById($id_lang).'.php'))
-			{
-				include($file1);
-				$_MODULES[$id_lang] = $_MODULE;
-			}
-			elseif (file_exists($file2 = _PS_MODULE_DIR_.$this->name.'/'.Language::getIsoById($id_lang).'.php'))
-			{
-				include($file2);
-				$_MODULES[$id_lang] = $_MODULE;
-			}
-			else
-				return $string;
-		}
+        $name = $this->name;
+        $lang_iso = Language::getIsoById($id_lang);
+        if (isset(Context::getContext()->language)) {
+            $files_by_priority = array(
+                // Translations in theme
+                _PS_THEME_DIR_.'modules/'.$name.'/translations/'.$lang_iso.'.php',
+                _PS_THEME_DIR_.'modules/'.$name.'/'.$lang_iso.'.php',
+                // PrestaShop 1.5 translations
+                _PS_MODULE_DIR_.$name.'/translations/'.$lang_iso.'.php',
+                // PrestaShop 1.4 translations
+                _PS_MODULE_DIR_.$name.'/'.$lang_iso.'.php'
+            );
+            foreach ($files_by_priority as $file) {
+
+                if (file_exists($file)) {
+
+                    include($file);
+
+                    $_MODULES[$id_lang] = !empty($_MODULES[$id_lang]) ? $_MODULES[$id_lang] + $_MODULE : $_MODULE; //we use "+" instead of array_merge() because array merge erase existing values.
+                }
+            }
+
+        }
 
 		$string = str_replace('\'', '\\\'', $string);
 
