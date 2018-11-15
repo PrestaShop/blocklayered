@@ -1,10 +1,13 @@
 <?php
 
 include(dirname(__FILE__).'/../../config/config.inc.php');
-include(dirname(__FILE__).'/blocklayered.php');
+Context::getContext()->controller = 'AdminController';
+include(dirname(__FILE__).'/../../init.php');
 
 if (substr(Tools::encrypt('blocklayered/index'),0,10) != Tools::getValue('token') || !Module::isInstalled('blocklayered'))
 	die('Bad token');
+/** @var BlockLayered $blockLayered */
+$blockLayered = Module::getInstanceByName('blocklayered');
 
 if (!Tools::getValue('ajax'))
 {
@@ -26,7 +29,7 @@ if (!Tools::getValue('ajax'))
 
 if(Tools::getValue('full'))
 {
-	echo BlockLayered::fullPricesIndexProcess((int)Tools::getValue('cursor'), (int)Tools::getValue('ajax'), true);
+	echo $blockLayered::fullPricesIndexProcess((int)Tools::getValue('cursor'), (int)Tools::getValue('ajax'), true);
 }
 else
-	echo BlockLayered::pricesIndexProcess((int)Tools::getValue('cursor'), (int)Tools::getValue('ajax'));
+	echo $blockLayered::pricesIndexProcess((int)Tools::getValue('cursor'), (int)Tools::getValue('ajax'));
