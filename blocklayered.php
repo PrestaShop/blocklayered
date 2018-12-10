@@ -871,8 +871,8 @@ class BlockLayered extends Module
 		Db::getInstance()->execute('
 			INSERT INTO `'._DB_PREFIX_.'layered_product_attribute` (`id_attribute`, `id_product`, `id_attribute_group`, `id_shop`)
 			SELECT pac.id_attribute, pa.id_product, ag.id_attribute_group, product_attribute_shop.`id_shop`
-			FROM '._DB_PREFIX_.'product_attribute pa'.
-			Shop::addSqlAssociation('product_attribute', 'pa').'
+			FROM '._DB_PREFIX_.'product_attribute pa
+			INNER JOIN '._DB_PREFIX_.'product_attribute_shop product_attribute_shop ON pa.id_product_attribute = product_attribute_shop.id_product_attribute
 			INNER JOIN '._DB_PREFIX_.'product_attribute_combination pac ON pac.id_product_attribute = pa.id_product_attribute
 			INNER JOIN '._DB_PREFIX_.'attribute a ON (a.id_attribute = pac.id_attribute)
 			INNER JOIN '._DB_PREFIX_.'attribute_group ag ON ag.id_attribute_group = a.id_attribute_group
