@@ -2346,6 +2346,8 @@ class BlockLayered extends Module
 					if (Group::isFeatureActive())
 						$sql_query['group'] .= 'RIGHT JOIN '._DB_PREFIX_.'category_group cg ON (cg.id_category = c.id_category AND cg.`id_group` IN ('.implode(', ', $this->user_groups).')) ';
 
+					$sql_query['group'] .= Shop::addSqlAssociation('category', 'c');
+					
 					$sql_query['group'] .= 'WHERE c.nleft > '.(int)$parent->nleft.'
 					AND c.nright < '.(int)$parent->nright.'
 					'.($depth ? 'AND c.level_depth <= '.($parent->level_depth+(int)$depth) : '').'
